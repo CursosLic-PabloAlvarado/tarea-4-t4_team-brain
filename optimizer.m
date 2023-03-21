@@ -20,24 +20,24 @@ classdef optimizer < handle
     epsilon = 1e-7;  ## Evite divisiones por cero en Adam
     maxiter = 200;   ## Número de iteraciones
 
-    mbmode  = 'withrep'; ## Minibatch mode with replacement 
-    
+    mbmode  = 'withrep'; ## Minibatch mode with replacement
+
     method  = 'batch';  ## "batch", "stochastic", "momentum", "rmsprop", "adam"
     show    = 'progress';
   endproperties
-  
+
   properties (Access = private)
 
     ## Remaining samples used while training with no-replacement
     remainingIndices=[];
-    
+
     ## Training state
     v=[]; ## Last gradient
 
   endproperties
-    
+
   methods (Access = private)
-    
+
     ## ----------------------------------------------------------------------
     ## Updaters
     ##
@@ -45,18 +45,22 @@ classdef optimizer < handle
     ## It needs the current parameters tc, and the current gradient g
     ## and it returns the updated parameters vector tn depending on the
     ## method.
-   
-       
+
+
     ## theta update with momentum
     function tn = updateMomentum(self,tc,g)
       self.v = self.beta1*self.v + (1-self.beta1)*g;
       tn = tc - self.alpha*self.v;
     endfunction
+    function tn = updateBatch(self, tc, g)
+      assert(size(g)==size(tc));
+      tn = tc - self.alpha*g;
+    endfunction
 
- 
+
     ## ----------------------------------------------------------------------
     ## Show progress methods
-    
+
     ## Shows nothing (silent mode)
     function showNothing(self,iteration,currentError)
       ## Nothing is done
@@ -76,7 +80,7 @@ classdef optimizer < handle
     function showProgress(self,iteration,currentError)
       pc=round(100*iteration/self.maxiter);
       done=round(pc*0.7);
-      
+
       printf("%03i%% %s\r",pc,repmat('=',1,done));
     endfunction
 
@@ -93,9 +97,9 @@ classdef optimizer < handle
     endfunction
 
   endmethods
-  
+
   methods (Access = public)
-      
+
     % Construct an optimizer with the desired configuration.
     % See the configure method for available options
     function self=optimizer(varargin)
@@ -103,9 +107,9 @@ classdef optimizer < handle
       pkg load statistics;
 
       self.configure(varargin{:});
-      
+
     endfunction
-    
+
     % Configure the optimizer
     %
     % The following parameter pairs are possible (if ommited, the current value
@@ -122,7 +126,7 @@ classdef optimizer < handle
     function configure(self,varargin)
 
       parser = inputParser();
-      
+
       validMethods={"batch","sgd","momentum","rmsprop","adam"};
       checkMethod = @(x) any(validatestring(x,validMethods));
       addParameter(parser,'method',self.method,checkMethod);
@@ -141,15 +145,15 @@ classdef optimizer < handle
       validMBMode={"withrep","norep"};
       checkMBMode=@(x) any(validatestring(x,validMBMode));
       addParameter(parser,"mbmode",self.mbmode,checkMBMode);
-      
+
       validShow={"nothing","dots","loss","progress"};
       checkShow=@(x) any(validatestring(x,validShow));
       addParameter(parser,'show',self.show,checkShow);
-      
+
       parse(parser,varargin{:});
-  
+
       self.method    = parser.Results.method;    ## String with desired method
-      self.alpha     = parser.Results.alpha;     ## Learning rate 
+      self.alpha     = parser.Results.alpha;     ## Learning rate
       self.beta1     = parser.Results.beta1;     ## Momentum parameters beta1
       self.beta2     = parser.Results.beta2;     ## ADAM paramter beta2
       self.maxiter   = parser.Results.maxiter;   ## maxinum number of iterations
@@ -158,7 +162,7 @@ classdef optimizer < handle
       self.mbmode    = parser.Results.mbmode;    ## minibatch replacement mode
       self.show      = parser.Results.show;      ## show progress information
     endfunction
-    
+
     % Find the minimum of a function J.
     %
     % Starting at point theta0, search for the minimum of the target
@@ -176,7 +180,7 @@ classdef optimizer < handle
     %
     %   function grad = gJ(theta,Xo,Yo)
     %
-    % where theta is a vector holding a set of parameters for the used 
+    % where theta is a vector holding a set of parameters for the used
     % hypothesis, which might be a row vector (as in logistic regression) or
     % a matrix (as in softmax).
     %
@@ -191,7 +195,7 @@ classdef optimizer < handle
     % J: target function computing the loss (or error)
     % gJ: gradient of the target function J
     % theta0: initial point for the iterative optimization process
-    % Xo: vector holding the training design matrix 
+    % Xo: vector holding the training design matrix
     % Yo: vector holding the training labels, one-hot encoded.
     %
     %
@@ -226,12 +230,12 @@ classdef optimizer < handle
       ## Depending on the minibatch mode (mbmode) the subset returned
       ## by samplerMB uses sampling with-replacement or
       ## without-replacement.
-      
+
       ## batch sampler, just passes through the indices of the whole input set
-      samplerB = @(X) [1:rows(X)]'; 
+      samplerB = @(X) [1:rows(X)]';
 
       samplerMB=[];
-      
+
       switch(self.mbmode)
         case "withrep"
           ## "With-replacement" means that the random samples can appear
@@ -245,18 +249,24 @@ classdef optimizer < handle
         otherwise
           error("Minibatch mode unknown");
       endswitch
-      
- 
+
+
       switch (self.method)
         case "momentum"
           sampler=samplerMB;
           updater=@(tc,g) self.updateMomentum(tc,g);
+        case "batch"
+          sampler=samplerMB;
+          updater=@(tc,g) self.updateBatch(tc,g);
+        case "sgd"
+          sampler=samplerMB;
+          updater=@(tc,g) self.updateBatch(tc,g);
         otherwise
           error("Method not implemented yet");
       endswitch
 
       progress = [];
-      
+
       switch (self.show)
         case "nothing"
           progress = @(it,err) self.showNothing(it,err);
@@ -269,24 +279,24 @@ classdef optimizer < handle
         otherwise
           error("Unknown show method");
       endswitch
-      
+
       # Initialization of the gradients for momentum, rmsprop and adam
-      
+
       sample=sampler(Xo); # which rows of Xo should be used?
       X=Xo(sample,:);
       Y=Yo(sample,:);
       errors = [J(theta0,X,Y)];
       self.v = gJ(theta0,X,Y);  # Grad @ current position
-      
+
       for i=[1:self.maxiter] # max iterations
         tc = ts{end}; # Current position
-        
+
         sample=sampler(Xo); # Use MB random samples
         X=Xo(sample,:);
         Y=Yo(sample,:);
         gn = gJ(tc,X,Y);  # Grad @ current position
         tn = updater(tc,gn); # Next position
-        
+
         ts{end+1} = tn;
         errors = [errors;J(tn,X,Y)];
 
@@ -295,7 +305,7 @@ classdef optimizer < handle
       printf("\n");
       pos = ts;
 
-      
+
     endfunction
 
   endmethods
