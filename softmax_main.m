@@ -36,15 +36,15 @@ for m=1:numel(methods)
 
   try
     opt.configure("method",method); ## Just change the method
-    [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
+    [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0,NXtr,Y);
     theta=ts{end}
 
-    py=logreg_hyp(theta,NXte);
+    py=softmax_hyp(theta,NXte);
     err=sum((py>0.5)!=Yte);
     tot=100*(err/rows(Yte));
     printf("errores de prueba: %d de %d (%.2f%%)\n", err, length(Yte), tot);
 
-    py=logreg_hyp(theta,NXtr);
+    py=softmax_hyp(theta,NXtr);
     err=sum((py>0.5)!=Y);
     tot=100*(err/rows(Y));
     printf("errores de entreneamineto: %d de %d (%.2f%%)\n", err, length(Y), tot);
@@ -75,10 +75,10 @@ for i=1:4
     nx2=N2.fit_transform(x2);
 
     opt.configure("method","batch"); ## Just change the method
-    [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats),nx2,Y);
+    [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0(feats),nx2,Y);
     theta2=ts{end};
 
-    py2=logreg_hyp(theta2,nx2);
+    py2=softmax_hyp(theta2,nx2);
     err2=sum((py2>0.5)!=Y);
     tot2=100*(err2/rows(Y));
 
@@ -109,7 +109,7 @@ printf("el menor error obtenido es: %d al evaluar las columnas %d y %d\n", comp,
 [ee1,ee2]=meshgrid(e1,e2);
 x2test=N2.transform([ee1(:) ee2(:)]);
 
-ytest=logreg_hyp(theta2,x2test);
+ytest=softmax_hyp(theta2,x2test);
 
 figure(2,"name","Probabilidad")
 surf(ee1,ee2,reshape(ytest,size(ee1)));
@@ -124,10 +124,10 @@ N2=normalizer("normal");
 nx3=N2.fit_transform(x3);
 
 opt.configure("method","batch"); ## Just change the method
-[ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats2),nx3,Y);
+[ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0(feats2),nx3,Y);
 theta3=ts{end};
 
-py3=logreg_hyp(theta3,nx3);
+py3=softmax_hyp(theta3,nx3);
 err3=sum((py3>0.5)!=Y);
 tot3=100*(err3/rows(Y));
 

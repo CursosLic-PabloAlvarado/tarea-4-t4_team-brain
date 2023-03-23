@@ -50,16 +50,11 @@ classdef optimizer < handle
       self.v = self.beta1*self.v + (1-self.beta1)*g;
       tn = tc - self.alpha*self.v;
     endfunction
-    ## theta update with Batch
-    function tn = updateBatch(self, tc, g)
+    ## theta update with remaining methods
+    function tn = update(self, tc, g)
       assert(size(g)==size(tc));
       tn = tc - self.alpha*g;
     endfunction
-    ## theta update with SGD
-    function tn = updateSGD(self, tc, g)
-      tn = tc - self.alpha*g;
-    endfunction
-
 
 
 
@@ -132,7 +127,7 @@ classdef optimizer < handle
 
       parser = inputParser();
 
-      validMethods={"batch","sgd","momentum"};
+      validMethods={"batch","sgd","momentum","rmsprop","adam"};
       checkMethod = @(x) any(validatestring(x,validMethods));
       addParameter(parser,'method',self.method,checkMethod);
 
@@ -262,10 +257,16 @@ classdef optimizer < handle
           updater=@(tc,g) self.updateMomentum(tc,g);
         case "batch"
           sampler=samplerB;
-          updater=@(tc,g) self.updateBatch(tc,g);
+          updater=@(tc,g) self.update(tc,g);
         case "sgd"
           sampler=samplerMB;
-          updater=@(tc,g) self.updateSGD(tc,g);
+          updater=@(tc,g) self.update(tc,g);
+        case "rmsprop"
+          sampler=samplerMB;
+          updater=@(tc,g) self.update(tc,g);
+        case "adam"
+          sampler=samplerMB;
+          updater=@(tc,g) self.update(tc,g);
         otherwise
           error("Method not implemented yet");
       endswitch
