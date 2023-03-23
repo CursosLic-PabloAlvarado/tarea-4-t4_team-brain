@@ -1,10 +1,8 @@
-## Copyright (C) 2022-2023 Pablo Alvarado
-## EL5857 Aprendizaje Automático
-## Escuela de Ingeniería Electrónica
-## Tecnológico de Costa Rica
-## Tarea 3
-##
-## Copyright (C) 2023 <Su Copyright AQUÍ>
+% Copyright (C) 2022-2023 Pablo Alvarado
+% EL5857 Aprendizaje Automático
+% Tarea 4
+
+% (C) 2023 <Team brAIn>
 
 
 ## optimizer Execute a gradient descent process on a given error function.
@@ -22,7 +20,7 @@ classdef optimizer < handle
 
     mbmode  = 'withrep'; ## Minibatch mode with replacement
 
-    method  = 'batch';  ## "batch", "stochastic", "momentum", "rmsprop", "adam"
+    method  = "sgd","momentum","rmsprop","adam","batch";
     show    = 'progress';
   endproperties
 
@@ -52,10 +50,12 @@ classdef optimizer < handle
       self.v = self.beta1*self.v + (1-self.beta1)*g;
       tn = tc - self.alpha*self.v;
     endfunction
-    function tn = updateBatch(self, tc, g)
+    ## theta update for remaining methods
+    function tn = update(self, tc, g)
       assert(size(g)==size(tc));
       tn = tc - self.alpha*g;
-    endfunction
+
+
 
 
     ## ----------------------------------------------------------------------
@@ -256,11 +256,17 @@ classdef optimizer < handle
           sampler=samplerMB;
           updater=@(tc,g) self.updateMomentum(tc,g);
         case "batch"
-          sampler=samplerMB;
-          updater=@(tc,g) self.updateBatch(tc,g);
+          sampler=samplerB;
+          updater=@(tc,g) self.update(tc,g);
         case "sgd"
           sampler=samplerMB;
-          updater=@(tc,g) self.updateBatch(tc,g);
+          updater=@(tc,g) self.update(tc,g);
+        case "rmsprop" %%%%%%%%%%%%%%%%%pruebas
+          sampler=samplerB;
+          updater=@(tc,g) self.update(tc,g);
+        case "adam"
+          sampler=samplerB;
+          updater=@(tc,g) self.update(tc,g);
         otherwise
           error("Method not implemented yet");
       endswitch

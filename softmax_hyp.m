@@ -3,8 +3,6 @@
 % Tarea 3
 % (C) 2023 <Team brAIn>
 
-
-
 % Hypothesis function used in softmax
 % Theta: matrix, its columns are each related to one
 %        particular class.
