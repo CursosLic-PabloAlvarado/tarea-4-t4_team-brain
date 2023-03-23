@@ -26,22 +26,7 @@ hold on;
 figure(2,"name","Loss evolution");
 hold on;
 
-function h=linreg_hyp(theta,X)
-  % theta must be a column vector
-  h=X*theta(:);
-endfunction
 
-function err=linreg_loss(theta,X,y)
-  ## residuals
-  r=y-linreg_hyp(theta,X);
-  err=0.5*(r'*r); # OLS
-endfunction
-
-function grad=linreg_gradloss(theta,X,y)
-  ## residuals
-  h=linreg_hyp(theta,X);
-  grad=sum((h-y).*X);
-endfunction
 
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
