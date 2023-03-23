@@ -5,6 +5,8 @@
 
 % Loss function used in softmax
 function err=softmax_loss(theta,X,y)
-  ## Dummy implementation just returns noise
-  err=rand();
+
+  m = length(y); % número de ejemplos de entrenamiento
+  h = softmax_hyp(theta,X); % calcular la hipótesis
+  err = (1 / (m)) * sum((h - y) .^ 2); % calcular el error de MSE
 endfunction

@@ -7,7 +7,11 @@
 %
 % The size of the returned gradient must be equal to the size of Theta
 function grad=softmax_gradloss(Theta,X,y)
-  
-  ## Dummy random implementation
-  grad=rand(size(Theta));
+
+
+
+  m = length(y); % número de ejemplos de entrenamiento
+  h = soft_hyp(theta,X); % calcular la hipótesis
+  ##grad = (2/m)*(h-y); % calcular el gradiente de MSE
+  grad = (2/m)*((X' * (h-y)))';
 endfunction
