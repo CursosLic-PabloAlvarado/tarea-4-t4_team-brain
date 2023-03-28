@@ -8,5 +8,5 @@ function err=softmax_loss(theta,X,y)
 
   m = length(y); % número de ejemplos de entrenamiento
   h = softmax_hyp(theta,X); % calcular la hipótesis
-  err = (1 / (m)) * sum((h - y) .^ 2); % calcular el error de MSE
+  err = sum((1 / (m)) * sum((h - y) .^ 2)); % calcular el error de MSE
 endfunction

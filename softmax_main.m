@@ -5,6 +5,8 @@
 
 % Logistic regression testbench
 
+######
+
 clear all; close all;
 [Xtr,Ytr,Xte,Yte,names] = loadpenguindata("sex");
 Xtr = [ones(length(Xtr),1) Xtr];
@@ -22,7 +24,7 @@ opt=optimizer("method","sgd",
               "alpha",0.05);
 ###
 
-theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
+theta0=rand(columns(NXtr),2)-0.5; ## Common starting point (column vector)
 
 # test all optimization methods
 methods={"sgd","momentum","rmsprop","adam","batch"};
