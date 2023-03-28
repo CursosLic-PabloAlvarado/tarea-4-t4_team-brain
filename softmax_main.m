@@ -22,7 +22,6 @@ opt=optimizer("method","sgd",
               "minibatch",11,
               "maxiter",600,
               "alpha",0.05);
-###
 
 theta0=rand(columns(NXtr),2)-0.5; ## Common starting point (column vector)
 
