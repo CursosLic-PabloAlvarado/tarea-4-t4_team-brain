@@ -11,7 +11,7 @@
 function h=softmax_hyp(Theta,X)
   ## Dummy implementation just returns a random value
  % h=rand(rows(X),columns(Theta));
-  h=exp( Theta'*X' );
+  h=exp( Theta*X' );
   nor=sum(h) + ones(1,columns(h)); ## the ones 'cause exp(0) for k
   h = h ./ nor;
 endfunction
