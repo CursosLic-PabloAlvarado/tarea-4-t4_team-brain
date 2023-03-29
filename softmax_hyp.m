@@ -8,10 +8,12 @@
 %        particular class.
 % returns the hypothesis, which has only k-1 values for each sample
 %         as the last one is computed as 1 minus the sum of all the rest.
-function h=softmax_hyp(Theta,X)
+function hh=softmax_hyp(Theta,X)
   ## Dummy implementation just returns a random value
  % h=rand(rows(X),columns(Theta));
-  h=exp( X*Theta' );
+  h=exp( X*Theta );
+
   nor=sum(h,2) + ones(1,columns(h)); ## the ones 'cause exp(0) for k
   h = h ./ nor;
+  hh=[h 1-sum(h,2)]; %agregar la columna 3
 endfunction

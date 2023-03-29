@@ -6,11 +6,11 @@
 % Logistic regression testbench
 
 clear all; close all;
-[Xtr,Ytr,Xte,Yte,names] = loadpenguindata("sex");
+[Xtr,Ytr,Xte,Yte,names] = loadpenguindata("species");
 Xtr = [ones(length(Xtr),1) Xtr];
 Xte = [ones(length(Xte),1) Xte];
-Y = Ytr(:,1);
-Yte = Yte(:,1);
+Y = Ytr;
+%Yte = Yte;
 NX=normalizer("normal");
 NXtr=NX.fit_transform(Xtr);
 NXte=NX.transform(Xte);
@@ -25,28 +25,28 @@ opt=optimizer("method","sgd",
 theta0=rand(columns(NXtr),2)-0.5; ## Common starting point (column vector)
 
 # test all optimization methods
-methods={"sgd","momentum","rmsprop","adam","batch"};
-##methods={"batch"};
+%methods={"sgd","momentum","rmsprop","adam","batch"};
+methods={"batch"};
 
-tts1=zeros(numel(methods),5); %para los thetas
-es=zeros(1,67);%para la grafica 2d
+%tts1=zeros(numel(methods),5); %para los thetas
+%es=zeros(1,67);%para la grafica 2d
 
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
   msg=sprintf(";%s;",method); ## use method in legends
 
-  try
+  %try
     opt.configure("method",method); ## Just change the method
     [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0,NXtr,Y);
     theta=ts{end}
 
-    tts1(m,:)=ts{end};
+    %tts1(m,:)=ts{end};
 
     py=softmax_hyp(theta,NXte);
     err=sum((py>0.5)!=Yte);
     tot=100*(err/rows(Yte));
-    es(1,:)=py';
+    %es(1,:)=py';
 
 
     printf("errores de prueba: %d de %d (%.2f%%)\n", err, length(Yte), tot);
@@ -60,10 +60,10 @@ for m=1:numel(methods)
     figure(1);
     plot(errs,msg,"linewidth",2);
     hold on;
-  catch
-    printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
-           method,lasterror.message);
-  end_try_catch
+  %catch
+   % printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
+    %       method,lasterror.message);
+  %end_try_catch
 endfor
 xlabel("Iteration");
 ylabel("Loss");
@@ -83,7 +83,7 @@ for i=1:4
     nx2=N2.fit_transform(x2);
 
     opt.configure("method","batch"); ## Just change the method
-    [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0(feats),nx2,Y);
+    [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0(feats,:),nx2,Y);
     theta2=ts{end};
 
     py2=softmax_hyp(theta2,nx2);
@@ -122,31 +122,31 @@ ytest=softmax_hyp(theta2,x2test);
 
 ################################
 figure(2,"name","Probabilidad")
-surf(ee1,ee2,reshape(ytest,size(ee1)));
+surf(ee1,ee2,reshape(ytest(:,1),size(ee1)));
 xlabel("culmen length [mm]");
 ylabel("bodymass [g]");
 zlabel("p(Female|x");
 hold on;
-contour3(ee1,ee2,reshape(ytest,size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
+contour3(ee1,ee2,reshape(ytest(:,1),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 
 
 
-################################
-figure(3,"name","Frontera de decisión y datos de prueba")
-
-for q=1:67
-  if es(1,q)>0.5
-  plot(Xte(q,4),Xte(q,5),'x','color','b');
-  hold on;
-  elseif
-  plot(Xte(q,4),Xte(q,5),'o','color','r');
-  hold on;
-  endif
-endfor
-legend('y=1','','','y=0')
-contour(ee1,ee2,reshape(ytest,size(ee1)),[0,0.5,1],"linewidth",3,"linecolor","black");
-xlabel("culmen length mm");
-ylabel("Flipper length mm");
+##################################
+##figure(3,"name","Frontera de decisión y datos de prueba")
+##
+##for q=1:67
+##  if es(1,q)>0.5
+##  plot(Xte(q,4),Xte(q,5),'x','color','b');
+##  hold on;
+##  elseif
+##  plot(Xte(q,4),Xte(q,5),'o','color','r');
+##  hold on;
+##  endif
+##endfor
+##legend('y=1','','','y=0')
+##contour(ee1,ee2,reshape(ytest,size(ee1)),[0,0.5,1],"linewidth",3,"linecolor","black");
+##xlabel("culmen length mm");
+##ylabel("Flipper length mm");
 
 ################################
 feats2=[2,columna1,columna2];
@@ -157,7 +157,7 @@ nx3=N2.fit_transform(x3);
 for m=1:numel(methods)
   method=methods{m};
   opt.configure("method",method); ## Just change the method
-  [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0(feats2),nx3,Y);
+  [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0(feats2,:),nx3,Y);
   theta3=ts{end};
 
   py3=softmax_hyp(theta3,nx3);
@@ -165,11 +165,11 @@ for m=1:numel(methods)
   tot3=100*(err3/rows(Y));
 
   nts=cell2mat(ts);
-  nets=reshape(nts,3,601);
-  newts=nets';
+  %nets=reshape(nts,3,601);
+  %newts=nets';
   figure(4,"name","Trayectoria de los parámetros durante el entrenamiento para tres métodos de optimización");
   hold on;
-  plot3(newts(:,1),newts(:,2),newts(:,3),"linewidth",2);
+  plot3(nts(1,:),nts(2,:),nts(3,:),"linewidth",2);
 
 endfor
 
