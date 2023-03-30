@@ -111,7 +111,7 @@ ytest=softmax_hyp(theta2,x2test);
 
 
 ################################
-figure(2,"name","Probabilidad")
+figure(2,"name","Probabilidad para Adelie")
 
 colormap(hot);
 surf(ee1,ee2,reshape(ytest(:,1),size(ee1)));
@@ -121,7 +121,7 @@ zlabel("p(Adelie|x");
 hold on;
 contour3(ee1,ee2,reshape(ytest(:,1),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 ################################
-figure(3,"name","Probabilidad")
+figure(3,"name","Probabilidad para Chinstrap")
 
 colormap(rainbow);
 surf(ee1,ee2,reshape(ytest(:,2),size(ee1)));
@@ -131,7 +131,7 @@ zlabel("p(Chinstrap|x");
 hold on;
 contour3(ee1,ee2,reshape(ytest(:,2),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 ################################
-figure(4,"name","Probabilidad")
+figure(4,"name","Probabilidad para Gentoo")
 
 colormap(winter);
 surf(ee1,ee2,reshape(ytest(:,3),size(ee1)));
@@ -161,8 +161,10 @@ endfor
 cmap = [1,0,0; 0,1,0; 0,0,1];
 img = reshape(ygrap,size(ee1));
 rgb_img = ind2rgb(img, cmap);
-figure(5,"name","colores");
+figure(5,"name","Regiones de las clases ganadoras para el espacio de entrada bidimensional");
 image(rgb_img);
+xlabel("culmen length [mm]");
+ylabel("bodymass [g]");
 axis equal;
 hold on;
 
@@ -171,8 +173,10 @@ color_weight = y_prob * cmap'; % Calcula los pesos para cada color
 ##mixed_color = reshape(color_weight,size(ee1)); % Mezcla los colores
 mixed_color= reshape(color_weight, [50 50 3]);
 
-figure(6,"name","mezcla de colores");
+figure(6,"name","Ponderación de colores asignados a las clases, de acuerdo a la probabilidad de pertenecer a esa clase");
 image(mixed_color);
+xlabel("culmen length [mm]");
+ylabel("bodymass [g]");
 axis equal;
 
 
