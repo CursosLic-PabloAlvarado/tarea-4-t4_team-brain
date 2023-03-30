@@ -141,13 +141,31 @@ zlabel("p(Gentoo|x");
 hold on;
 contour3(ee1,ee2,reshape(ytest(:,3),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 ################################
-figure(5,"name","colores")
-cmap = [0,0,0; 1,0,0; 0,1,0; 0,0,1; 0.5,0,0.5; 0,0.5,0.5; 0.5,0.5,0.0];
-wimg=ind2rgb(ytest,cmap);
-image(wimg);
-xlabel("culmen length [mm]");
-ylabel("bodymass [g]");
-zlabel("p(Gentoo|x");
+
+ygrap=zeros(size(ytest(:,1)));
+for i=1:length(ygrap)
+  c1=ytest(i,1);
+  c2=ytest(i,2);
+  c3=ytest(i,3);
+  if c1>c2 && c1>c3
+    ygrap(i)=1;
+  endif
+  if c2>c1 && c2>c3
+    ygrap(i)=2;
+  endif
+  if c3>c2 && c3>c1
+    ygrap(i)=3;
+  endif
+endfor
+
+cmap = [1 0 0; % rojo para la clase 1
+        0 1 0; % verde para la clase 2
+        0 0 1]; % azul para la clase 3
+img = reshape(ygrap,size(ee1));
+rgb_img = ind2rgb(img, cmap);
+figure(5,"name","colores");
+image(rgb_img);
+axis equal;
 hold on;
 
 
