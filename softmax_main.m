@@ -26,17 +26,13 @@ theta0=rand(columns(NXtr),2)-0.5; ## Common starting point (column vector)
 
 # test all optimization methods
 methods={"sgd","momentum","rmsprop","adam","batch"};
-##methods={"batch"};
-
-%tts1=zeros(numel(methods),5); %para los thetas
-%es=zeros(1,67);%para la grafica 2d
 
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
   msg=sprintf(";%s;",method); ## use method in legends
 
-  %try
+  try
     opt.configure("method",method); ## Just change the method
     [ts,errs]=opt.minimize(@softmax_loss,@softmax_gradloss,theta0,NXtr,Y);
     theta=ts{end}
@@ -56,10 +52,10 @@ for m=1:numel(methods)
     figure(1);
     plot(errs,msg,"linewidth",2);
     hold on;
-  %catch
-   % printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
-    %       method,lasterror.message);
-  %end_try_catch
+  catch
+    printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
+           method,lasterror.message);
+  end_try_catch
 endfor
 xlabel("Iteration");
 ylabel("Loss");
@@ -97,6 +93,8 @@ for i=1:4
 
     e1=linspace(mins(1),maxs(1),50);
     e2=linspace(mins(2),maxs(2),50);
+    e11=linspace(mins(1),maxs(1),500);
+    e22=linspace(mins(2),maxs(2),500);
   endfor
 
 endfor
@@ -106,9 +104,11 @@ printf("el menor error obtenido es: %d al evaluar las columnas %d y %d\n", comp,
 
 [ee1,ee2]=meshgrid(e1,e2);
 x2test=N2.transform([ee1(:) ee2(:)]);
+[ee11,ee22]=meshgrid(e11,e22);
+x22test=N2.transform([ee11(:) ee22(:)]);
 
 ytest=softmax_hyp(theta2,x2test);
-
+ytest2=softmax_hyp(theta2,x22test);
 
 ################################
 figure(2,"name","Probabilidad para Adelie")
@@ -142,11 +142,11 @@ hold on;
 contour3(ee1,ee2,reshape(ytest(:,3),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 ################################
 
-ygrap=zeros(size(ytest(:,1)));
+ygrap=zeros(size(ytest2(:,1)));
 for i=1:length(ygrap)
-  c1=ytest(i,1);
-  c2=ytest(i,2);
-  c3=ytest(i,3);
+  c1=ytest2(i,1);
+  c2=ytest2(i,2);
+  c3=ytest2(i,3);
   if c1>c2 && c1>c3
     ygrap(i)=1;
   endif
@@ -159,7 +159,7 @@ for i=1:length(ygrap)
 endfor
 
 cmap = [1,0,0; 0,1,0; 0,0,1];
-img = reshape(ygrap,size(ee1));
+img = reshape(ygrap,size(ee11));
 rgb_img = ind2rgb(img, cmap);
 figure(5,"name","Regiones de las clases ganadoras para el espacio de entrada bidimensional");
 image(rgb_img);
@@ -168,10 +168,9 @@ ylabel("bodymass [g]");
 axis equal;
 hold on;
 
-y_prob = (ytest) ./ sum((ytest), 2);
+y_prob = (ytest2) ./ sum((ytest2), 2);
 color_weight = y_prob * cmap'; % Calcula los pesos para cada color
-##mixed_color = reshape(color_weight,size(ee1)); % Mezcla los colores
-mixed_color= reshape(color_weight, [50 50 3]);
+mixed_color= reshape(color_weight, [500 500 3]);
 
 figure(6,"name","Ponderación de colores asignados a las clases, de acuerdo a la probabilidad de pertenecer a esa clase");
 image(mixed_color);
