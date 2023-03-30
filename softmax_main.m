@@ -158,15 +158,22 @@ for i=1:length(ygrap)
   endif
 endfor
 
-cmap = [1 0 0; % rojo para la clase 1
-        0 1 0; % verde para la clase 2
-        0 0 1]; % azul para la clase 3
+cmap = [1,0,0; 0,1,0; 0,0,1];
 img = reshape(ygrap,size(ee1));
 rgb_img = ind2rgb(img, cmap);
 figure(5,"name","colores");
 image(rgb_img);
 axis equal;
 hold on;
+
+y_prob = exp(ytest) ./ sum(exp(ytest), 2);
+color_weight = y_prob * cmap'; % Calcula los pesos para cada color
+##mixed_color = reshape(color_weight,size(ee1)); % Mezcla los colores
+mixed_color= reshape(color_weight, [50 50 3]);
+
+figure(6,"name","mezcla de colores");
+image(mixed_color);
+axis equal;
 
 
 
