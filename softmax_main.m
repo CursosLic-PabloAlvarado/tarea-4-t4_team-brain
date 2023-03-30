@@ -166,7 +166,7 @@ image(rgb_img);
 axis equal;
 hold on;
 
-y_prob = exp(ytest) ./ sum(exp(ytest), 2);
+y_prob = (ytest) ./ sum((ytest), 2);
 color_weight = y_prob * cmap'; % Calcula los pesos para cada color
 ##mixed_color = reshape(color_weight,size(ee1)); % Mezcla los colores
 mixed_color= reshape(color_weight, [50 50 3]);
