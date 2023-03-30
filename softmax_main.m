@@ -112,27 +112,45 @@ ytest=softmax_hyp(theta2,x2test);
 
 ################################
 figure(2,"name","Probabilidad")
+
+colormap(hot);
 surf(ee1,ee2,reshape(ytest(:,1),size(ee1)));
 xlabel("culmen length [mm]");
 ylabel("bodymass [g]");
-zlabel("p(Female|x");
+zlabel("p(Adelie|x");
 hold on;
 contour3(ee1,ee2,reshape(ytest(:,1),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 ################################
 figure(3,"name","Probabilidad")
+
+colormap(rainbow);
 surf(ee1,ee2,reshape(ytest(:,2),size(ee1)));
 xlabel("culmen length [mm]");
 ylabel("bodymass [g]");
-zlabel("p(Female|x");
+zlabel("p(Chinstrap|x");
 hold on;
 contour3(ee1,ee2,reshape(ytest(:,2),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 ################################
 figure(4,"name","Probabilidad")
+
+colormap(winter);
 surf(ee1,ee2,reshape(ytest(:,3),size(ee1)));
 xlabel("culmen length [mm]");
 ylabel("bodymass [g]");
-zlabel("p(Female|x");
+zlabel("p(Gentoo|x");
 hold on;
 contour3(ee1,ee2,reshape(ytest(:,3),size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
+################################
+figure(5,"name","colores")
+cmap = [0,0,0; 1,0,0; 0,1,0; 0,0,1; 0.5,0,0.5; 0,0.5,0.5; 0.5,0.5,0.0];
+wimg=ind2rgb(ytest,cmap);
+image(wimg);
+xlabel("culmen length [mm]");
+ylabel("bodymass [g]");
+zlabel("p(Gentoo|x");
+hold on;
+
+
+
 
 
